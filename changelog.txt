@@ -1,0 +1,116 @@
+1.06:
+- Support for ESL plugins
+- Updated runtime mismatch error message to be more user-friendly.
+- Abstracted Get/SetPropertyValue out of ScaleformMCM and into MCMUtils.
+
+1.05:
+- Updated runtime mismatch error message to correct swapped version numbers.
+- Added mouse and gamepad button conflict detection
+- New valueSource type: PropertyValue
+- Added MCM Scaleform functions:
+    - GetPropertyValue(formIdentifier:String, propertyName:String):*
+    - SetPropertyValue(formIdentifier:String, propertyName:String, newValue:*):Boolean
+
+1.0:
+- Initial public release.
+- Better runtime version checking.
+- Enabled mouse hotkeys.
+
+0.67:
+- Updated MCM Scaleform functions:
+    - CallQuestFunction can now also call functions on non-Quest forms.
+
+0.66:
+- Updated MCM Scaleform callback:
+    - ProcessUserEvent(controlName:String, isDown:Boolean, deviceType:int)
+
+0.65:
+- Automatically create MCM folder if not present.
+- Automatically create MCM\Settings folder if not present.
+- Added MCM Scaleform functions:
+    - OnMCMOpen
+- Removed MCM Scaleform functions:
+    - StartKeyCapture/StopKeyCapture
+
+0.64:
+- ModSetting defaults are now defined in MCM\Config\ModName\settings.ini
+- Keybinds are now serialized to disk when the MCM menu is closed.
+- Removed Scaleform function invocation logging.
+- Added MCM Scaleform functions:
+    - OnMCMClose
+- Removed MCM Scaleform functions:
+    - SetKeybindEx
+- Updated MCM Scaleform functions:
+    - GetConfigList(fullPath:Boolean=false, filename:String="config.json")
+- Added Papyrus functions:
+    - RefreshMenu
+
+0.63:
+- Support for game version 1.10.20
+
+0.62:
+- Enabled RunConsoleCommand keybind action type.
+- Added MCM Scaleform functions:
+    - DisableMenuInput
+
+0.61:
+- Added translation support (Interface\Translations\mcm_xx.txt)
+
+0.6:
+- Added keybind action types:
+    - CallGlobalFunction
+    - RunConsoleCommand
+    - SendEvent (sends OnControlDown/OnControlUp event to target form)
+- Support for Control and Alt modifiers for keybinds.
+- Added MCM Scaleform functions:
+    - GetConfigList
+    - GetMCMVersionCode
+    - GetMCMVersionString
+- Updated MCM Scaleform functions:
+    - SetKeybind
+- Active keybind registrations are now stored in MCM\Settings\Keybinds.json
+- Keybind definitions are now stored in MCM\Config\<mod name>\keybinds.json instead of in the keybind registrations file.
+- Support for function parameters for keybind actions.
+
+0.5:
+- Fixed issue with StopKeyCapture causing CTD if called within ProcessKeyEvent.
+- Added keybind/hotkey support
+- Added MCM Scaleform functions:
+    - IsPluginInstalled
+    - GetAllKeybinds
+    - GetKeybind
+    - SetKeybind
+    - ClearKeybind
+    - RemapKeybind
+
+0.4:
+- Fixed a buffer overflow issue that could occur with too many INI settings in a single file.
+- Added MCM Scaleform functions:
+    - StartKeyCapture
+    - StopKeyCapture
+- Added MCM Scaleform callback:
+    - ProcessKeyEvent(keyCode:int, isDown:Boolean)
+
+0.3:
+- Added ModSetting support
+- Added MCM Scaleform functions:
+    - Get/SetModSettingInt
+    - Get/SetModSettingBool
+    - Get/SetModSettingFloat
+    - Get/SetModSettingString
+    
+- Added Papyrus functions:
+    - Get/SetModSettingInt
+    - Get/SetModSettingBool
+    - Get/SetModSettingFloat
+    - Get/SetModSettingString
+
+0.2:
+- Added MCM Scaleform functions:
+    - GetGlobalValue
+    - SetGlobalValue
+    - CallQuestFunction
+    - CallGlobalFunction
+    
+0.1:
+- MCM menu injection
