@@ -11,7 +11,6 @@
 #include "f4se/ScaleformCallbacks.h"
 
 // Translation
-#include "f4se/ScaleformTranslator.h"
 #include "f4se/ScaleformLoader.h"
 #include "f4se/Translation.h"
 
@@ -24,6 +23,7 @@
 #include "SettingStore.h"
 #include "MCMInput.h"
 #include "MCMSerialization.h"
+#include "MCMTranslator.h"
 
 #define PLUGIN_VERSION 1
 
@@ -54,8 +54,7 @@ void OnF4SEMessage(F4SEMessagingInterface::Message* msg) {
 			// Inject translations
 			BSScaleformTranslator* translator = (BSScaleformTranslator*)(*g_scaleformManager)->stateBag->GetStateAddRef(GFxState::kInterface_Translator);
 			if (translator) {
-				std::string mcm = "mcm";
-				Translation::ParseTranslation(translator, mcm);
+				MCMTranslator::LoadTranslations(translator);
 			}
 			break;
 	}
