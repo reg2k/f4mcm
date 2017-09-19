@@ -25,7 +25,7 @@ namespace ScaleformMCM {
 	class GetMCMVersionString : public GFxFunctionHandler {
 	public:
 		virtual void Invoke(Args* args) {
-			args->result->SetString(MCM_VERSION_STRING);
+			args->result->SetString(PLUGIN_VERSION_STRING);
 		}
 	};
 
@@ -33,7 +33,7 @@ namespace ScaleformMCM {
 	class GetMCMVersionCode : public GFxFunctionHandler {
 	public:
 		virtual void Invoke(Args* args) {
-			args->result->SetInt(MCM_VERSION);
+			args->result->SetInt(PLUGIN_VERSION);
 		}
 	};
 

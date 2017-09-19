@@ -25,8 +25,6 @@
 #include "MCMSerialization.h"
 #include "MCMTranslator.h"
 
-#define PLUGIN_VERSION 1
-
 IDebugLog gLog;
 PluginHandle g_pluginHandle = kPluginHandle_Invalid;
 
@@ -67,34 +65,35 @@ bool F4SEPlugin_Query(const F4SEInterface * f4se, PluginInfo * info)
 {
 	gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Fallout4\\F4SE\\MCM.log");
 
-	_MESSAGE("MCM v%s", MCM_VERSION_STRING);
+	_MESSAGE("MCM v%s", PLUGIN_VERSION_STRING);
 	_MESSAGE("MCM query");
 
 	// populate info structure
 	info->infoVersion =	PluginInfo::kInfoVersion;
-	info->name =		"F4MCM";
-	info->version =		MCM_VERSION;
+	info->name      = PLUGIN_NAME_SHORT;
+	info->version   = PLUGIN_VERSION;
 
 	// store plugin handle so we can identify ourselves later
 	g_pluginHandle = f4se->GetPluginHandle();
 
 	// Check game version
-	if (f4se->runtimeVersion != SUPPORTED_RUNTIME_VERSION) {
-		char str[512];
-		sprintf_s(str, sizeof(str), "Your game version: v%d.%d.%d.%d\nExpected version: v%d.%d.%d.%d\nMod Configuration Menu will be disabled.", 
-			GET_EXE_VERSION_MAJOR(f4se->runtimeVersion),
-			GET_EXE_VERSION_MINOR(f4se->runtimeVersion),
-			GET_EXE_VERSION_BUILD(f4se->runtimeVersion),
-			GET_EXE_VERSION_SUB(f4se->runtimeVersion),
-			GET_EXE_VERSION_MAJOR(SUPPORTED_RUNTIME_VERSION),
-			GET_EXE_VERSION_MINOR(SUPPORTED_RUNTIME_VERSION),
-			GET_EXE_VERSION_BUILD(SUPPORTED_RUNTIME_VERSION),
-			GET_EXE_VERSION_SUB(SUPPORTED_RUNTIME_VERSION)
-		);
+    if (f4se->runtimeVersion != SUPPORTED_RUNTIME_VERSION) {
+        char str[512];
+        sprintf_s(str, sizeof(str), "Your game version: v%d.%d.%d.%d\nExpected version: v%d.%d.%d.%d\n%s will be disabled.",
+            GET_EXE_VERSION_MAJOR(f4se->runtimeVersion),
+            GET_EXE_VERSION_MINOR(f4se->runtimeVersion),
+            GET_EXE_VERSION_BUILD(f4se->runtimeVersion),
+            GET_EXE_VERSION_SUB(f4se->runtimeVersion),
+            GET_EXE_VERSION_MAJOR(SUPPORTED_RUNTIME_VERSION),
+            GET_EXE_VERSION_MINOR(SUPPORTED_RUNTIME_VERSION),
+            GET_EXE_VERSION_BUILD(SUPPORTED_RUNTIME_VERSION),
+            GET_EXE_VERSION_SUB(SUPPORTED_RUNTIME_VERSION),
+            PLUGIN_NAME_LONG
+        );
 
-		MessageBox(NULL, str, "Mod Configuration Menu", MB_OK | MB_ICONEXCLAMATION);
-		return false;
-	}
+        MessageBox(NULL, str, PLUGIN_NAME_LONG, MB_OK | MB_ICONEXCLAMATION);
+        return false;
+    }
 
 	// Get the scaleform interface
 	g_scaleform = (F4SEScaleformInterface *)f4se->QueryInterface(kInterface_Scaleform);

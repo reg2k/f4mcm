@@ -1,11 +1,14 @@
 #pragma once
 #include "f4se_common/f4se_version.h"
 
-#define MCM_VERSION 2
-#define MCM_VERSION_STRING "1.10"
-#define MCM_NAME "MCM"
-
-#define SUPPORTED_RUNTIME_VERSION CURRENT_RELEASE_RUNTIME
+//-----------------------
+// Plugin Information
+//-----------------------
+#define PLUGIN_VERSION              2
+#define PLUGIN_VERSION_STRING       "1.10"
+#define PLUGIN_NAME_SHORT           "F4MCM"
+#define PLUGIN_NAME_LONG            "Mod Configuration Menu"
+#define SUPPORTED_RUNTIME_VERSION   CURRENT_RELEASE_RUNTIME
 
 // Addresses
 #if SUPPORTED_RUNTIME_VERSION == RUNTIME_VERSION_1_10_20

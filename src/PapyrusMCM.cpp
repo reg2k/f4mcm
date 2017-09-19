@@ -6,6 +6,8 @@
 #include "f4se/PapyrusVM.h"
 #include "f4se/PapyrusNativeFunctions.h"
 
+#define MCM_NAME "MCM"
+
 namespace PapyrusMCM
 {
 	bool IsInstalled(StaticFunctionTag* base) {
@@ -13,7 +15,7 @@ namespace PapyrusMCM
 	}
 
 	UInt32 GetVersionCode(StaticFunctionTag* base) {
-		return MCM_VERSION;
+		return PLUGIN_VERSION;
 	}
 
 	void RefreshMenu(StaticFunctionTag* base) {
