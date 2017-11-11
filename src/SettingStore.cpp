@@ -2,6 +2,14 @@
 
 #include <string>
 
+// reg2k
+Setting::~Setting() {
+    delete name;
+    if (GetType() == kType_String) {
+        delete data.s;
+    }
+}
+
 SettingStore::SettingStore()
 {
 	_MESSAGE("ModSettingStore initializing.");

@@ -18,6 +18,9 @@
 #include "f4se/PapyrusNativeFunctions.h"
 
 #include "Config.h"
+#include "rva/RVA.h"
+
+#include "Globals.h"
 #include "PapyrusMCM.h"
 #include "ScaleformMCM.h"
 #include "SettingStore.h"
@@ -45,17 +48,17 @@ bool RegisterPapyrus(VirtualMachine *vm) {
 }
 
 void OnF4SEMessage(F4SEMessagingInterface::Message* msg) {
-	switch (msg->type) {
-		case F4SEMessagingInterface::kMessage_GameLoaded:
-			MCMInput::GetInstance().RegisterForInput(true);
+    switch (msg->type) {
+        case F4SEMessagingInterface::kMessage_GameLoaded:
+            MCMInput::GetInstance().RegisterForInput(true);
 
-			// Inject translations
-			BSScaleformTranslator* translator = (BSScaleformTranslator*)(*g_scaleformManager)->stateBag->GetStateAddRef(GFxState::kInterface_Translator);
-			if (translator) {
-				MCMTranslator::LoadTranslations(translator);
-			}
-			break;
-	}
+            // Inject translations
+            BSScaleformTranslator* translator = (BSScaleformTranslator*)(*G::scaleformManager)->stateBag->GetStateAddRef(GFxState::kInterface_Translator);
+            if (translator) {
+                MCMTranslator::LoadTranslations(translator);
+            }
+            break;
+    }
 }
 
 extern "C"
@@ -128,24 +131,28 @@ bool F4SEPlugin_Query(const F4SEInterface * f4se, PluginInfo * info)
 
 bool F4SEPlugin_Load(const F4SEInterface *f4se)
 {
-	_MESSAGE("MCM load");
+    _MESSAGE("MCM load");
 
-	g_scaleform->Register("f4mcm", ScaleformMCM::RegisterScaleform);
-	g_papyrus->Register(RegisterPapyrus);
-	g_messaging->RegisterListener(g_pluginHandle, "F4SE", OnF4SEMessage);
+    // Initialize globals and addresses
+    G::Init();
+    RVAManager::UpdateAddresses(f4se->runtimeVersion);
 
-	g_serialization->SetUniqueID(g_pluginHandle, 'MCM');
-	g_serialization->SetRevertCallback(g_pluginHandle, MCMSerialization::RevertCallback);
-	g_serialization->SetLoadCallback(g_pluginHandle, MCMSerialization::LoadCallback);
-	g_serialization->SetSaveCallback(g_pluginHandle, MCMSerialization::SaveCallback);
+    g_scaleform->Register("f4mcm", ScaleformMCM::RegisterScaleform);
+    g_papyrus->Register(RegisterPapyrus);
+    g_messaging->RegisterListener(g_pluginHandle, "F4SE", OnF4SEMessage);
 
-	// Create Data/MCM if it doesn't already exist.
-	if (GetFileAttributes("Data\\MCM") == INVALID_FILE_ATTRIBUTES)
-		CreateDirectory("Data\\MCM", NULL);
+    g_serialization->SetUniqueID(g_pluginHandle, 'MCM');
+    g_serialization->SetRevertCallback(g_pluginHandle, MCMSerialization::RevertCallback);
+    g_serialization->SetLoadCallback(g_pluginHandle, MCMSerialization::LoadCallback);
+    g_serialization->SetSaveCallback(g_pluginHandle, MCMSerialization::SaveCallback);
 
-	SettingStore::GetInstance().ReadSettings();
+    // Create Data/MCM if it doesn't already exist.
+    if (GetFileAttributes("Data\\MCM") == INVALID_FILE_ATTRIBUTES)
+        CreateDirectory("Data\\MCM", NULL);
 
-	return true;
+    SettingStore::GetInstance().ReadSettings();
+
+    return true;
 }
 
 };

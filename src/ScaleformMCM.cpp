@@ -14,6 +14,7 @@
 #include "f4se/GameInput.h"
 #include "f4se/InputMap.h"
 
+#include "Globals.h"
 #include "Config.h"
 #include "Utils.h"
 #include "SettingStore.h"
@@ -176,7 +177,7 @@ namespace ScaleformMCM {
 			const char*	propertyName	= args->args[1].GetString();
 			GFxValue*	newValue		= &args->args[2];
 
-			VirtualMachine* vm = (*g_gameVM)->m_virtualMachine;
+			VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
 
 			VMValue newVMValue;
 			PlatformAdapter::ConvertScaleformValue(&newVMValue, newValue, vm);
@@ -204,7 +205,7 @@ namespace ScaleformMCM {
 				_MESSAGE("WARNING: %s is not a valid form.", args->args[0].GetString());
 			} else {
 
-				VirtualMachine* vm = (*g_gameVM)->m_virtualMachine;
+				VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
 
 				VMValue senderValue;
 				PackValue(&senderValue, &targetForm, vm);
@@ -250,7 +251,7 @@ namespace ScaleformMCM {
 			if (args->args[0].GetType() != GFxValue::kType_String) return;
 			if (args->args[1].GetType() != GFxValue::kType_String) return;
 
-			VirtualMachine* vm = (*g_gameVM)->m_virtualMachine;
+			VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
 
 			BSFixedString scriptName(args->args[0].GetString());
 			BSFixedString funcName(args->args[1].GetString());
@@ -409,7 +410,7 @@ namespace ScaleformMCM {
 			if (args->numArgs < 1) return;
 			if (args->args[0].GetType() != GFxValue::kType_String) return;
 
-			const ModInfo* mi = (*g_dataHandler)->LookupModByName(args->args[0].GetString());
+			const ModInfo* mi = (*G::dataHandler)->LookupModByName(args->args[0].GetString());
 			// modIndex == -1 for mods that are present in the Data directory but not active.
 			if (mi && mi->modIndex != -1) {
 				args->result->SetBool(true);
@@ -741,8 +742,8 @@ F4SEInputHandler g_scaleformInputHandler;
 void ScaleformMCM::ProcessKeyEvent(UInt32 keyCode, bool isDown)
 {
 	BSFixedString mainMenuStr("PauseMenu");
-	if ((*g_ui)->IsMenuOpen(&mainMenuStr)) {
-		IMenu* menu = (*g_ui)->GetMenu(&mainMenuStr);
+	if ((*G::ui)->IsMenuOpen(&mainMenuStr)) {
+		IMenu* menu = (*G::ui)->GetMenu(&mainMenuStr);
 		GFxMovieRoot* movieRoot = menu->movie->movieRoot;
 		GFxValue args[2];
 		args[0].SetInt(keyCode);
@@ -754,8 +755,8 @@ void ScaleformMCM::ProcessKeyEvent(UInt32 keyCode, bool isDown)
 void ScaleformMCM::ProcessUserEvent(const char * controlName, bool isDown, int deviceType)
 {
 	BSFixedString mainMenuStr("PauseMenu");
-	if ((*g_ui)->IsMenuOpen(&mainMenuStr)) {
-		IMenu* menu = (*g_ui)->GetMenu(&mainMenuStr);
+	if ((*G::ui)->IsMenuOpen(&mainMenuStr)) {
+		IMenu* menu = (*G::ui)->GetMenu(&mainMenuStr);
 		GFxMovieRoot* movieRoot = menu->movie->movieRoot;
 		GFxValue args[3];
 		args[0].SetString(controlName);
@@ -768,8 +769,8 @@ void ScaleformMCM::ProcessUserEvent(const char * controlName, bool isDown, int d
 void ScaleformMCM::RefreshMenu()
 {
 	BSFixedString mainMenuStr("PauseMenu");
-	if ((*g_ui)->IsMenuOpen(&mainMenuStr)) {
-		IMenu* menu = (*g_ui)->GetMenu(&mainMenuStr);
+	if ((*G::ui)->IsMenuOpen(&mainMenuStr)) {
+		IMenu* menu = (*G::ui)->GetMenu(&mainMenuStr);
 		GFxMovieRoot* movieRoot = menu->movie->movieRoot;
 		movieRoot->Invoke("root.mcm_loader.content.RefreshMCM", nullptr, nullptr, 0);
 	}
@@ -806,7 +807,7 @@ void ScaleformMCM::SetKeybindInfo(KeybindInfo ki, GFxMovieRoot * movieRoot, GFxV
 void ScaleformMCM::RegisterForInput(bool bRegister) {
 	if (bRegister) {
 		g_scaleformInputHandler.enabled = true;
-		tArray<BSInputEventUser*>* inputEvents = &((*g_menuControls)->inputEvents);
+		tArray<BSInputEventUser*>* inputEvents = &((*G::menuControls)->inputEvents);
 		BSInputEventUser* inputHandler = &g_scaleformInputHandler;
 		int idx = inputEvents->GetItemIndex(inputHandler);
 		if (idx == -1) {
@@ -833,12 +834,12 @@ bool ScaleformMCM::RegisterScaleform(GFxMovieView * view, GFxValue * f4se_root)
 
 	// Look for the menu that we want to inject into.
 	if (strcmp(currentSWFPathString, "Interface/MainMenu.swf") == 0) {
-		GFxValue root; movieRoot->GetVariable(&root, "root");
+        GFxValue root; movieRoot->GetVariable(&root, "root");
 
-		// Register native code object
-		GFxValue mcm; movieRoot->CreateObject(&mcm);
-		root.SetMember("mcm", &mcm);
-		ScaleformMCM::RegisterFuncs(&mcm, movieRoot);
+        // Register native code object
+        GFxValue mcm; movieRoot->CreateObject(&mcm);
+        root.SetMember("mcm", &mcm);
+        ScaleformMCM::RegisterFuncs(&mcm, movieRoot);
 
 		// Inject MCM menu
 		GFxValue loader, urlRequest;

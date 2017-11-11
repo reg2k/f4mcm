@@ -8,6 +8,9 @@
 #include "f4se/PapyrusVM.h"
 #include "f4se/PapyrusArgs.h"
 
+#include "rva/RVA.h"
+#include "Globals.h"
+
 //---------------------
 // Function Signatures
 //---------------------
@@ -32,16 +35,16 @@ T GetOffset(const void* baseObject, int offset) {
 }
 
 //---------------------
-// Addresses
+// Addresses [3]
 //---------------------
 
 typedef void (*_ExecuteCommand)(const char* str);
-RelocAddr <_ExecuteCommand> ExecuteCommand_Internal(Addr_ExecuteCommand);
+RVA <_ExecuteCommand> ExecuteCommand_Internal(Addr_ExecuteCommand, "40 53 55 56 57 41 54 48 81 EC ? ? ? ? 8B 15 ? ? ? ?");
 
-RelocAddr <uintptr_t> ProcessUserEvent_Check(Addr_ProcessUserEvent_Check);
+RVA <uintptr_t> ProcessUserEvent_Check(Addr_ProcessUserEvent_Check, "40 55 56 41 57 48 8D 6C 24 ?", 0x8C);
 
 typedef void* (*_GetPropertyInfo)(VMObjectTypeInfo* objectTypeInfo, void* outInfo, BSFixedString* propertyName, bool unk4); 	// unk4 = 1
-RelocAddr <_GetPropertyInfo> GetPropertyInfo_Internal(Addr_GetPropertyInfo);
+RVA <_GetPropertyInfo> GetPropertyInfo_Internal(Addr_GetPropertyInfo, "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F9 48 8B CA 41 0F B6 F1");
 
 //---------------------
 // Functions
@@ -54,7 +57,7 @@ TESForm * MCMUtils::GetFormFromIdentifier(const std::string & identifier)
 		std::string modName = identifier.substr(0, delimiter);
 		std::string modForm = identifier.substr(delimiter + 1);
 
-		const ModInfo* mod = (*g_dataHandler)->LookupModByName(modName.c_str());
+		const ModInfo* mod = (*G::dataHandler)->LookupModByName(modName.c_str());
 		if (mod && mod->modIndex != -1) {
 			UInt32 formID = std::stoul(modForm, nullptr, 16) & 0xFFFFFF;
 			UInt32 flags = GetOffset<UInt32>(mod, 0x334);
@@ -84,7 +87,7 @@ std::string MCMUtils::GetIdentifierFromFormID(UInt32 formID)
 	UInt8 modIndex = formID >> 24;
 	if (modIndex >= 0xFE) return "";	// ESL or user-created
 
-	ModInfo* mod = (*g_dataHandler)->modList.loadedMods[modIndex];
+	ModInfo* mod = (*G::dataHandler)->modList.loadedMods[modIndex];
 
 	char formIDStr[9];
 
@@ -128,7 +131,7 @@ bool MCMUtils::GetPropertyValue(const char * formIdentifier, const char * proper
 		return false;
 	}
 
-	VirtualMachine* vm = (*g_gameVM)->m_virtualMachine;
+	VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
 	VMValue targetScript;
 	PackValue(&targetScript, &targetForm, vm);
 	if (!targetScript.IsIdentifier()) {
@@ -159,7 +162,7 @@ bool MCMUtils::SetPropertyValue(const char * formIdentifier, const char * proper
 		return false;
 	}
 
-	VirtualMachine* vm = (*g_gameVM)->m_virtualMachine;
+	VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
 	VMValue targetScript;
 	PackValue(&targetScript, &targetForm, vm);
 	if (!targetScript.IsIdentifier()) {

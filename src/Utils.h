@@ -36,4 +36,11 @@ namespace MCMUtils {
 	void GetPropertyInfo(VMObjectTypeInfo* objectTypeInfo, PropertyInfo* outInfo, BSFixedString* propertyName);
 	bool GetPropertyValue(const char* formIdentifier, const char* propertyName, VMValue* valueOut);
 	bool SetPropertyValue(const char* formIdentifier, const char* propertyName, VMValue* valueIn);
+
+    // Utilities
+    template<typename T>
+    T* GetOffsetPtr(const void * baseObject, int offset)
+    {
+        return reinterpret_cast<T*>((uintptr_t)baseObject + offset);
+    }
 }

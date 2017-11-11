@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 
+#include "Globals.h"
 #include "Utils.h"
 
 #include "json/json.h"
@@ -317,15 +318,15 @@ KeybindInfo KeybindManager::GetKeybind(Keybind kb)
 
 			if (kb.keycode < InputMap::kMacro_MouseButtonOffset) {
 				// KB
-				controlName = (*g_inputMgr)->GetMappedControl(kb.keycode, InputEvent::kDeviceType_Keyboard, InputManager::kContext_Gameplay);
+				controlName = (*G::inputMgr)->GetMappedControl(kb.keycode, InputEvent::kDeviceType_Keyboard, InputManager::kContext_Gameplay);
 				
 			} else if (kb.keycode < InputMap::kMacro_GamepadOffset) {
 				// Mouse
-				controlName = (*g_inputMgr)->GetMappedControl(kb.keycode - InputMap::kMacro_MouseButtonOffset, InputEvent::kDeviceType_Mouse, InputManager::kContext_Gameplay);
+				controlName = (*G::inputMgr)->GetMappedControl(kb.keycode - InputMap::kMacro_MouseButtonOffset, InputEvent::kDeviceType_Mouse, InputManager::kContext_Gameplay);
 
 			} else if (kb.keycode < InputMap::kMaxMacros) {
 				// Gamepad
-				controlName = (*g_inputMgr)->GetMappedControl(InputMap::GamepadKeycodeToMask(kb.keycode), InputEvent::kDeviceType_Gamepad, InputManager::kContext_Gameplay);
+				controlName = (*G::inputMgr)->GetMappedControl(InputMap::GamepadKeycodeToMask(kb.keycode), InputEvent::kDeviceType_Gamepad, InputManager::kContext_Gameplay);
 			}
 
 			if (strcmp("", controlName.c_str()) != 0) {

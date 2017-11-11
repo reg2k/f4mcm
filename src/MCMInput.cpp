@@ -9,11 +9,12 @@
 #include "MCMInput.h"
 #include "MCMKeybinds.h"
 
+#include "Globals.h"
 #include "Utils.h"
 
 void MCMInput::RegisterForInput(bool bRegister)
 {
-	tArray<BSInputEventUser*>* inputEvents = &((*g_menuControls)->inputEvents);
+	tArray<BSInputEventUser*>* inputEvents = &((*G::menuControls)->inputEvents);
 	BSInputEventUser* inputHandler = this;
 	int idx = inputEvents->GetItemIndex(inputHandler);
 	if (idx > -1) {
@@ -83,7 +84,7 @@ void MCMInput::OnButtonEvent(ButtonEvent * inputEvent)
 				break;	// Shift, Ctrl, Alt modifiers
 
 			default: {
-				if ((*g_ui)->menuMode == 0) {
+				if ((*G::ui)->menuMode == 0) {
 					Keybind kb = {};
 					kb.keycode = keyCode;
 					if (GetAsyncKeyState(VK_SHIFT))		kb.modifiers |= Keybind::kModifier_Shift;
@@ -111,7 +112,7 @@ void MCMInput::OnButtonEvent(ButtonEvent * inputEvent)
 							case KeybindParameters::kType_CallGlobalFunction:
 							{
 								if (strlen(kp.callbackName.c_str()) > 0) {
-									VirtualMachine * vm = (*g_gameVM)->m_virtualMachine;
+									VirtualMachine * vm = (*G::gameVM)->m_virtualMachine;
 									VMArray<VMVariable> arguments;
 									PackArgs(arguments, kp);
 									VMValue args;
@@ -164,7 +165,7 @@ void MCMInput::OnButtonEvent(ButtonEvent * inputEvent)
 				break;	// Shift, Ctrl, Alt modifiers
 
 			default: {
-				if ((*g_ui)->menuMode == 0) {
+				if ((*G::ui)->menuMode == 0) {
 					Keybind kb = {};
 					kb.keycode = keyCode;
 					kb.modifiers = 0;

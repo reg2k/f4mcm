@@ -1,3 +1,19 @@
+1.21:
+- Public release v1.21 (version code 4)
+- Support for game version v1.10.40
+- Started work on game version independence.
+
+1.20:
+- Public release v1.20 (version code 4)
+- No backend changes
+
+1.12:
+- Public release v1.12 (version code 3)
+- Support for game version v1.10.26
+
+1.11:
+- No backend changes
+
 1.10:
 - Public release v1.10 (version code 2)
 - Automatic fallback to EN strings if translations are not present.
