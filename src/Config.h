@@ -14,7 +14,7 @@
 // Addresses
 #if SUPPORTED_RUNTIME_VERSION == RUNTIME_VERSION_1_10_64
     #define Addr_ExecuteCommand         0x0125B320
-    #define Addr_ProcessUserEvent_Check 0x0210F540
+    #define Addr_ProcessUserEvent_Check 0x0210F5CC
     #define Addr_GetPropertyInfo        0x02718830
 
 #elif SUPPORTED_RUNTIME_VERSION == RUNTIME_VERSION_1_10_50

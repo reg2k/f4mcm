@@ -742,8 +742,8 @@ F4SEInputHandler g_scaleformInputHandler;
 void ScaleformMCM::ProcessKeyEvent(UInt32 keyCode, bool isDown)
 {
 	BSFixedString mainMenuStr("PauseMenu");
-	if ((*G::ui)->IsMenuOpen(&mainMenuStr)) {
-		IMenu* menu = (*G::ui)->GetMenu(&mainMenuStr);
+	if ((*G::ui)->IsMenuOpen(mainMenuStr)) {
+		IMenu* menu = (*G::ui)->GetMenu(mainMenuStr);
 		GFxMovieRoot* movieRoot = menu->movie->movieRoot;
 		GFxValue args[2];
 		args[0].SetInt(keyCode);
@@ -755,8 +755,8 @@ void ScaleformMCM::ProcessKeyEvent(UInt32 keyCode, bool isDown)
 void ScaleformMCM::ProcessUserEvent(const char * controlName, bool isDown, int deviceType)
 {
 	BSFixedString mainMenuStr("PauseMenu");
-	if ((*G::ui)->IsMenuOpen(&mainMenuStr)) {
-		IMenu* menu = (*G::ui)->GetMenu(&mainMenuStr);
+	if ((*G::ui)->IsMenuOpen(mainMenuStr)) {
+		IMenu* menu = (*G::ui)->GetMenu(mainMenuStr);
 		GFxMovieRoot* movieRoot = menu->movie->movieRoot;
 		GFxValue args[3];
 		args[0].SetString(controlName);
@@ -769,8 +769,8 @@ void ScaleformMCM::ProcessUserEvent(const char * controlName, bool isDown, int d
 void ScaleformMCM::RefreshMenu()
 {
 	BSFixedString mainMenuStr("PauseMenu");
-	if ((*G::ui)->IsMenuOpen(&mainMenuStr)) {
-		IMenu* menu = (*G::ui)->GetMenu(&mainMenuStr);
+	if ((*G::ui)->IsMenuOpen(mainMenuStr)) {
+		IMenu* menu = (*G::ui)->GetMenu(mainMenuStr);
 		GFxMovieRoot* movieRoot = menu->movie->movieRoot;
 		movieRoot->Invoke("root.mcm_loader.content.RefreshMCM", nullptr, nullptr, 0);
 	}

@@ -84,7 +84,7 @@ void MCMInput::OnButtonEvent(ButtonEvent * inputEvent)
 				break;	// Shift, Ctrl, Alt modifiers
 
 			default: {
-				if ((*G::ui)->menuMode == 0) {
+				if ((*G::ui)->numPauseGame == 0) {
 					Keybind kb = {};
 					kb.keycode = keyCode;
 					if (GetAsyncKeyState(VK_SHIFT))		kb.modifiers |= Keybind::kModifier_Shift;
@@ -165,7 +165,7 @@ void MCMInput::OnButtonEvent(ButtonEvent * inputEvent)
 				break;	// Shift, Ctrl, Alt modifiers
 
 			default: {
-				if ((*G::ui)->menuMode == 0) {
+				if ((*G::ui)->numPauseGame == 0) {
 					Keybind kb = {};
 					kb.keycode = keyCode;
 					kb.modifiers = 0;
