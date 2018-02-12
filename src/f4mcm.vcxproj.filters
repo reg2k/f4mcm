@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="MCM.cpp" />
+    <ClCompile Include="PapyrusMCM.cpp" />
+    <ClCompile Include="ScaleformMCM.cpp" />
+    <ClCompile Include="SettingStore.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="jsoncpp.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="MCMKeybinds.cpp" />
+    <ClCompile Include="MCMInput.cpp" />
+    <ClCompile Include="MCMSerialization.cpp" />
+    <ClCompile Include="MCMTranslator.cpp" />
+    <ClCompile Include="Globals.cpp" />
+    <ClCompile Include="rva\sscan\Pattern.cpp">
+      <Filter>rva\sscan</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="PapyrusMCM.h" />
+    <ClInclude Include="ScaleformMCM.h" />
+    <ClInclude Include="SettingStore.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="json\json.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="json\json-forwards.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="MCMKeybinds.h" />
+    <ClInclude Include="MCMInput.h" />
+    <ClInclude Include="MCMSerialization.h" />
+    <ClInclude Include="MCMTranslator.h" />
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="rva\RVA.h">
+      <Filter>rva</Filter>
+    </ClInclude>
+    <ClInclude Include="rva\sscan\Pattern.h">
+      <Filter>rva\sscan</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="json">
+      <UniqueIdentifier>{a2a23ba1-2eef-4627-ab1c-ba941460140c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rva">
+      <UniqueIdentifier>{9f973d34-d428-4c55-9f2a-bae76e74ca67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rva\sscan">
+      <UniqueIdentifier>{94498cb7-5cf5-4b3e-b89b-db40ceaac834}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
