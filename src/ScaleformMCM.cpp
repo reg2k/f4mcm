@@ -412,7 +412,7 @@ namespace ScaleformMCM {
 
 			const ModInfo* mi = (*G::dataHandler)->LookupModByName(args->args[0].GetString());
 			// modIndex == -1 for mods that are present in the Data directory but not active.
-			if (mi && mi->modIndex != -1) {
+			if (mi && mi->modIndex != 0xFF) {
 				args->result->SetBool(true);
 			}
 		}
