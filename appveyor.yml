@@ -2,6 +2,9 @@ image: Visual Studio 2017
 
 environment:
   PYTHON: C:\Python34-x64
+  
+install:
+  - git submodule update --init --recursive
 
 build_script:
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
@@ -10,5 +13,7 @@ build_script:
   - python build.py
   
 artifacts:
-  - path: build\x64\Release\mcm.dll
-    name: MCM
+  - path: build\x64\Release\*.dll
+    name: DLL only
+  - path: build\*.zip
+    name: Packaged

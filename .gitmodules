@@ -1,0 +1,6 @@
+[submodule "src/rva"]
+	path = src/rva
+	url = https://github.com/reg2k/rva.git
+[submodule "tools/build-tools"]
+	path = tools/build-tools
+	url = https://github.com/reg2k/f4se-build-tools.git

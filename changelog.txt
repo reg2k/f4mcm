@@ -1,3 +1,8 @@
+1.24:
+- Public release v1.24 (version code 4)
+- Support for game version v1.10.75
+- Fixed: Issue with deactivated mods continuing to satisfy a MCM menu's plugin requirements.
+
 1.23:
 - Public release v1.23 (version code 4)
 - Support for game version v1.10.64
