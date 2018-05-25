@@ -4,15 +4,20 @@
 //-----------------------
 // Plugin Information
 //-----------------------
-#define PLUGIN_VERSION              4
-#define PLUGIN_VERSION_STRING       "1.25"
+#define PLUGIN_VERSION              5
+#define PLUGIN_VERSION_STRING       "1.26"
 #define PLUGIN_NAME_SHORT           "F4MCM"
 #define PLUGIN_NAME_LONG            "Mod Configuration Menu"
 #define SUPPORTED_RUNTIME_VERSION   CURRENT_RELEASE_RUNTIME
 #define MINIMUM_RUNTIME_VERSION     RUNTIME_VERSION_1_9_4
 
 // Addresses
-#if SUPPORTED_RUNTIME_VERSION == RUNTIME_VERSION_1_10_82
+#if SUPPORTED_RUNTIME_VERSION == RUNTIME_VERSION_1_10_89
+    #define Addr_ExecuteCommand         0x0125B340
+    #define Addr_ProcessUserEvent_Check 0x0210F65C
+    #define Addr_GetPropertyInfo        0x027188E0
+
+#elif SUPPORTED_RUNTIME_VERSION == RUNTIME_VERSION_1_10_82
     #define Addr_ExecuteCommand         0x0125B2E0
     #define Addr_ProcessUserEvent_Check 0x0210F5FC
     #define Addr_GetPropertyInfo        0x02718860
