@@ -651,6 +651,30 @@ namespace ScaleformMCM {
 			g_keybindManager.Release();
 		}
 	};
+
+	class GetFullName : public GFxFunctionHandler {
+	public:
+		virtual void Invoke(Args* args) {
+			args->result->SetString("");
+			if (args->args[0].GetType() != GFxValue::kType_String) return;
+			TESForm* form = MCMUtils::GetFormFromIdentifier(args->args[0].GetString());
+			if (!form) return;
+			TESFullName* fullname = DYNAMIC_CAST(form, TESForm, TESFullName);
+			if (!fullname) return;
+			args->result->SetString(fullname->name.c_str());
+		}
+	};
+
+	class GetDescription : public GFxFunctionHandler {
+	public:
+		virtual void Invoke(Args* args) {
+			args->result->SetString("");
+			if (args->args[0].GetType() != GFxValue::kType_String) return;
+			TESForm* form = MCMUtils::GetFormFromIdentifier(args->args[0].GetString());
+			if (!form) return;
+			args->result->SetString(MCMUtils::GetDescription(form).c_str());
+		}
+	};
 }
 
 void ScaleformMCM::RegisterFuncs(GFxValue* codeObj, GFxMovieRoot* movieRoot) {
@@ -694,6 +718,10 @@ void ScaleformMCM::RegisterFuncs(GFxValue* codeObj, GFxMovieRoot* movieRoot) {
 	RegisterFunction<SetKeybind>(codeObj, movieRoot, "SetKeybind");
 	RegisterFunction<ClearKeybind>(codeObj, movieRoot, "ClearKeybind");
 	RegisterFunction<RemapKeybind>(codeObj, movieRoot, "RemapKeybind");
+
+	// 
+	RegisterFunction<GetFullName>(codeObj, movieRoot, "GetFullName");
+	RegisterFunction<GetDescription>(codeObj, movieRoot, "GetDescription");
 }
 
 //-------------------------

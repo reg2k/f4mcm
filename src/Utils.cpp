@@ -176,3 +176,20 @@ bool MCMUtils::SetPropertyValue(const char * formIdentifier, const char * proper
 
 	return true;
 }
+
+#include "f4se\GameRTTI.h"
+
+BSFixedString MCMUtils::GetDescription(TESForm * thisForm)
+{
+	if (!thisForm)
+		return BSFixedString();
+
+	TESDescription * pDescription = DYNAMIC_CAST(thisForm, TESForm, TESDescription);
+	if (pDescription) {
+		BSString str;
+		CALL_MEMBER_FN(pDescription, Get)(&str, nullptr);
+		return str.Get();
+	}
+
+	return BSFixedString();
+}
