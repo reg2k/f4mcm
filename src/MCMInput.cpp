@@ -87,9 +87,9 @@ void MCMInput::OnButtonEvent(ButtonEvent * inputEvent)
 				if ((*G::ui)->numPauseGame == 0) {
 					Keybind kb = {};
 					kb.keycode = keyCode;
-					if (GetAsyncKeyState(VK_SHIFT))		kb.modifiers |= Keybind::kModifier_Shift;
-					if (GetAsyncKeyState(VK_CONTROL))	kb.modifiers |= Keybind::kModifier_Control;
-					if (GetAsyncKeyState(VK_MENU))		kb.modifiers |= Keybind::kModifier_Alt;
+					if (GetAsyncKeyState(VK_SHIFT) & 0x8000)		kb.modifiers |= Keybind::kModifier_Shift;
+					if (GetAsyncKeyState(VK_CONTROL) & 0x8000)	kb.modifiers |= Keybind::kModifier_Control;
+					if (GetAsyncKeyState(VK_MENU) & 0x8000)		kb.modifiers |= Keybind::kModifier_Alt;
 
 					g_keybindManager.Lock();
 					if (g_keybindManager.m_data.count(kb) > 0) {

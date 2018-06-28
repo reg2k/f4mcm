@@ -43,4 +43,6 @@ namespace MCMUtils {
     {
         return reinterpret_cast<T*>((uintptr_t)baseObject + offset);
     }
+
+	BSFixedString GetDescription(TESForm * thisForm);
 }
