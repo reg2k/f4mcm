@@ -39,12 +39,12 @@ T GetOffset(const void* baseObject, int offset) {
 //---------------------
 
 typedef void (*_ExecuteCommand)(const char* str);
-RVA <_ExecuteCommand> ExecuteCommand_Internal(Addr_ExecuteCommand, "40 53 55 56 57 41 54 48 81 EC ? ? ? ? 8B 15 ? ? ? ?");
+RVA <_ExecuteCommand> ExecuteCommand_Internal("40 53 55 56 57 41 54 48 81 EC ? ? ? ? 8B 15 ? ? ? ?");
 
-RVA <uintptr_t> ProcessUserEvent_Check(Addr_ProcessUserEvent_Check, "40 55 56 41 57 48 8D 6C 24 ?", 0x8C);
+RVA <uintptr_t> ProcessUserEvent_Check("40 55 56 41 57 48 8D 6C 24 ?", 0x8C);
 
 typedef void* (*_GetPropertyInfo)(VMObjectTypeInfo* objectTypeInfo, void* outInfo, BSFixedString* propertyName, bool unk4); 	// unk4 = 1
-RVA <_GetPropertyInfo> GetPropertyInfo_Internal(Addr_GetPropertyInfo, "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F9 48 8B CA 41 0F B6 F1");
+RVA <_GetPropertyInfo> GetPropertyInfo_Internal("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F9 48 8B CA 41 0F B6 F1");
 
 //---------------------
 // Functions
