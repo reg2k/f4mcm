@@ -123,7 +123,7 @@ void MCMUtils::GetPropertyInfo(VMObjectTypeInfo * objectTypeInfo, PropertyInfo *
 	GetPropertyInfo_Internal(objectTypeInfo, outInfo, propertyName, 1);
 }
 
-bool MCMUtils::GetPropertyValue(const char * formIdentifier, const char * propertyName, VMValue * valueOut)
+bool MCMUtils::GetPropertyValue(const char * formIdentifier, const char * scriptName, const char * propertyName, VMValue * valueOut)
 {
 	TESForm* targetForm = MCMUtils::GetFormFromIdentifier(formIdentifier);
 	if (!targetForm) {
@@ -132,29 +132,50 @@ bool MCMUtils::GetPropertyValue(const char * formIdentifier, const char * proper
 	}
 
 	VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
-	VMValue targetScript;
-	PackValue(&targetScript, &targetForm, vm);
-	if (!targetScript.IsIdentifier()) {
+
+	IObjectHandlePolicy * hp = (*g_gameVM)->m_virtualMachine->GetHandlePolicy();
+	UInt64 hdl = hp->Create(targetForm->kTypeID, targetForm);
+
+	VirtualMachine::IdentifierItem * attachedScripts = (*g_gameVM)->m_virtualMachine->m_attachedScripts.Find(&hdl);
+
+	if (attachedScripts->count == 0)
+	{
 		_WARNING("Warning: Cannot retrieve a property value %s from a form with no scripts attached. (%s)", propertyName, formIdentifier);
 		return false;
 	}
 
+	VMIdentifier* targetScriptIdentifier = nullptr;
+
+	if (attachedScripts->count == 1)
+	{
+		targetScriptIdentifier = attachedScripts->GetScriptObject(attachedScripts->identifier.one);
+	}
+	else
+	{
+		for (UInt32 i = 0; i < attachedScripts->count; ++i)
+		{
+			targetScriptIdentifier = attachedScripts->GetScriptObject(attachedScripts->identifier.many[i]);
+			if (_stricmp(targetScriptIdentifier->m_typeInfo->m_typeName.c_str(), scriptName) == 0)
+				break;
+		}
+	}
+	if (!targetScriptIdentifier) return false;
+
 	// Find the property
 	PropertyInfo pInfo = {};
 	pInfo.index = -1;
-	GetPropertyInfo(targetScript.data.id->m_typeInfo, &pInfo, &BSFixedString(propertyName));
+	GetPropertyInfo(targetScriptIdentifier->m_typeInfo, &pInfo, &BSFixedString(propertyName));
 
 	if (pInfo.index != -1) {
-		//vm->Unk_25(&targetScript.data.id, pInfo.index, valueOut);
-		GetVirtualFunction<_GetPropertyValueByIndex>(vm, Idx_GetPropertyValueByIndex)(vm, &targetScript.data.id, pInfo.index, valueOut);
+		vm->GetPropertyValueByIndex(&targetScriptIdentifier, pInfo.index, valueOut);
 		return true;
 	} else {
-		_WARNING("Warning: Property %s does not exist on script %s", propertyName, targetScript.data.id->m_typeInfo->m_typeName.c_str());
+		_WARNING("Warning: Property %s does not exist on script %s", propertyName, targetScriptIdentifier->m_typeInfo->m_typeName.c_str());
 		return false;
 	}
 }
 
-bool MCMUtils::SetPropertyValue(const char * formIdentifier, const char * propertyName, VMValue * valueIn)
+bool MCMUtils::SetPropertyValue(const char * formIdentifier, const char * scriptName, const char * propertyName, VMValue * valueIn)
 {
 	TESForm* targetForm = GetFormFromIdentifier(formIdentifier);
 	if (!targetForm) {
@@ -163,17 +184,37 @@ bool MCMUtils::SetPropertyValue(const char * formIdentifier, const char * proper
 	}
 
 	VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
-	VMValue targetScript;
-	PackValue(&targetScript, &targetForm, vm);
-	if (!targetScript.IsIdentifier()) {
+
+	IObjectHandlePolicy * hp = (*g_gameVM)->m_virtualMachine->GetHandlePolicy();
+	UInt64 hdl = hp->Create(targetForm->kTypeID, targetForm);
+
+	VirtualMachine::IdentifierItem * attachedScripts = (*g_gameVM)->m_virtualMachine->m_attachedScripts.Find(&hdl);
+
+	if (attachedScripts->count == 0)
+	{
 		_WARNING("Warning: Cannot set a property value %s on a form with no scripts attached. (%s)", propertyName, formIdentifier);
 		return false;
 	}
 
-	UInt64 unk4 = 0;
-	//vm->Unk_23(&targetScript.data.id, propertyName, valueIn, &unk4);
-	GetVirtualFunction<_SetPropertyValue>(vm, Idx_SetPropertyValue)(vm, &targetScript.data.id, propertyName, valueIn, &unk4);
+	VMIdentifier* targetScriptIdentifier = nullptr;
 
+	if (attachedScripts->count == 1)
+	{
+		targetScriptIdentifier = attachedScripts->GetScriptObject(attachedScripts->identifier.one);
+	}
+	else
+	{
+		for (UInt32 i = 0; i < attachedScripts->count; ++i)
+		{
+			targetScriptIdentifier = attachedScripts->GetScriptObject(attachedScripts->identifier.many[i]);
+			if (_stricmp(targetScriptIdentifier->m_typeInfo->m_typeName.c_str(), scriptName) == 0)
+				break;
+		}
+	}
+	if (!targetScriptIdentifier) return false;
+
+	UInt64 unk4 = 0;
+	vm->SetPropertyValue(&targetScriptIdentifier, propertyName, valueIn, &unk4);
 	return true;
 }
 

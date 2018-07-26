@@ -12,7 +12,12 @@
 #define MINIMUM_RUNTIME_VERSION     RUNTIME_VERSION_1_9_4
 
 // Addresses
-#if SUPPORTED_RUNTIME_VERSION == RUNTIME_VERSION_1_10_98
+#if SUPPORTED_RUNTIME_VERSION == RUNTIME_VERSION_1_10_106
+#define Addr_ExecuteCommand         0x0125B380
+#define Addr_ProcessUserEvent_Check 0x0210F69C
+#define Addr_GetPropertyInfo        0x02718920
+
+#elif SUPPORTED_RUNTIME_VERSION == RUNTIME_VERSION_1_10_98
 	#define Addr_ExecuteCommand         0x0125B380
 	#define Addr_ProcessUserEvent_Check 0x0210F69C
 	#define Addr_GetPropertyInfo        0x02718920

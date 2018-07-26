@@ -155,9 +155,14 @@ namespace ScaleformMCM {
 			
 			const char* formIdentifier	= args->args[0].GetString();
 			const char*	propertyName	= args->args[1].GetString();
+			const char* scriptName		= nullptr;
+			if (args->numArgs == 3 && (args->args[2].GetType() == GFxValue::kType_String))
+			{
+				scriptName = args->args[2].GetString();
+			}
 
 			VMValue valueOut;
-			bool getOK = MCMUtils::GetPropertyValue(formIdentifier, propertyName, &valueOut);
+			bool getOK = MCMUtils::GetPropertyValue(formIdentifier, scriptName, propertyName, &valueOut);
 			if (getOK)
 				PlatformAdapter::ConvertPapyrusValue(args->result, &valueOut, args->movie->movieRoot);
 		}
@@ -176,12 +181,17 @@ namespace ScaleformMCM {
 			const char* formIdentifier	= args->args[0].GetString();
 			const char*	propertyName	= args->args[1].GetString();
 			GFxValue*	newValue		= &args->args[2];
+			const char* scriptName = nullptr;
+			if (args->numArgs == 4 && (args->args[3].GetType() == GFxValue::kType_String))
+			{
+				scriptName = args->args[3].GetString();
+			}
 
 			VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
 
 			VMValue newVMValue;
 			PlatformAdapter::ConvertScaleformValue(&newVMValue, newValue, vm);
-			bool setOK = MCMUtils::SetPropertyValue(formIdentifier, propertyName, &newVMValue);
+			bool setOK = MCMUtils::SetPropertyValue(formIdentifier, scriptName, propertyName, &newVMValue);
 
 			args->result->SetBool(setOK);
 		}
@@ -195,9 +205,10 @@ namespace ScaleformMCM {
 		virtual void Invoke(Args* args) {
 			args->result->SetBool(false);
 
-			if (args->numArgs < 2) return;
+			if (args->numArgs < 3) return;
 			if (args->args[0].GetType() != GFxValue::kType_String) return;
 			if (args->args[1].GetType() != GFxValue::kType_String) return;
+			if (args->args[2].GetType() != GFxValue::kType_String) return;
 
 			TESForm* targetForm = MCMUtils::GetFormFromIdentifier(args->args[0].GetString());
 
@@ -207,18 +218,40 @@ namespace ScaleformMCM {
 
 				VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
 
-				VMValue senderValue;
-				PackValue(&senderValue, &targetForm, vm);
+				IObjectHandlePolicy * hp = (*g_gameVM)->m_virtualMachine->GetHandlePolicy();
+				UInt64 hdl = hp->Create(targetForm->kTypeID, targetForm);
 
-				if (!senderValue.IsIdentifier()) {
+				VirtualMachine::IdentifierItem * attachedScripts = (*g_gameVM)->m_virtualMachine->m_attachedScripts.Find(&hdl);
+
+				if (attachedScripts->count == 0)
+				{
+					_WARNING("Warning: Cannot run function %s on a form with no scripts attached.", args->args[2].GetString());
+					return;
+				}
+
+				VMIdentifier* targetScriptIdentifier = nullptr;
+
+				if (attachedScripts->count == 1)
+				{
+					targetScriptIdentifier = attachedScripts->GetScriptObject(attachedScripts->identifier.one);
+				}
+				else
+				{
+					for (UInt32 i = 0; i < attachedScripts->count; ++i)
+					{
+						targetScriptIdentifier = attachedScripts->GetScriptObject(attachedScripts->identifier.many[i]);
+						if (_stricmp(targetScriptIdentifier->m_typeInfo->m_typeName.c_str(), args->args[1].GetString()) == 0)
+							break;
+					}
+				}
+				if (!targetScriptIdentifier) {
 					_MESSAGE("WARNING: %s cannot be resolved to a Papyrus script object.", args->args[0].GetString());
 				} else {
 
-					VMIdentifier* identifier = senderValue.data.id;
-					BSFixedString funcName(args->args[1].GetString());
+					BSFixedString funcName(args->args[2].GetString());
 
 					VMValue packedArgs;
-					UInt32 length = args->numArgs - 2;
+					UInt32 length = args->numArgs - 3;
 					VMValue::ArrayData* arrayData = nullptr;
 					vm->CreateArray(&packedArgs, length, &arrayData);
 
@@ -228,11 +261,11 @@ namespace ScaleformMCM {
 					for (UInt32 i = 0; i < length; i++)
 					{
 						VMValue* var = new VMValue;
-						PlatformAdapter::ConvertScaleformValue(var, &args->args[i + 2], vm);
+						PlatformAdapter::ConvertScaleformValue(var, &args->args[i + 3], vm);
 						arrayData->arr.entries[i].SetVariable(var);
 					}
 
-					CallFunctionNoWait_Internal(vm, 0, identifier, &funcName, &packedArgs);
+					CallFunctionNoWait_Internal(vm, 0, targetScriptIdentifier, &funcName, &packedArgs);
 
 					args->result->SetBool(true);
 				}

@@ -34,8 +34,8 @@ namespace MCMUtils {
 
 	// Papyrus Properties
 	void GetPropertyInfo(VMObjectTypeInfo* objectTypeInfo, PropertyInfo* outInfo, BSFixedString* propertyName);
-	bool GetPropertyValue(const char* formIdentifier, const char* propertyName, VMValue* valueOut);
-	bool SetPropertyValue(const char* formIdentifier, const char* propertyName, VMValue* valueIn);
+	bool GetPropertyValue(const char* formIdentifier, const char* scriptName, const char* propertyName, VMValue* valueOut);
+	bool SetPropertyValue(const char* formIdentifier, const char* scriptName, const char* propertyName, VMValue* valueIn);
 
     // Utilities
     template<typename T>
