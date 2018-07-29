@@ -157,7 +157,7 @@ namespace ScaleformMCM {
 			const char*	propertyName	= args->args[1].GetString();
 
 			VMValue valueOut;
-			bool getOK = MCMUtils::GetPropertyValue(formIdentifier, propertyName, &valueOut);
+			bool getOK = MCMUtils::GetPropertyValue(formIdentifier, nullptr, propertyName, &valueOut);
 			if (getOK)
 				PlatformAdapter::ConvertPapyrusValue(args->result, &valueOut, args->movie->movieRoot);
 		}
@@ -181,44 +181,92 @@ namespace ScaleformMCM {
 
 			VMValue newVMValue;
 			PlatformAdapter::ConvertScaleformValue(&newVMValue, newValue, vm);
-			bool setOK = MCMUtils::SetPropertyValue(formIdentifier, propertyName, &newVMValue);
+			bool setOK = MCMUtils::SetPropertyValue(formIdentifier, nullptr, propertyName, &newVMValue);
 
 			args->result->SetBool(setOK);
 		}
 	};
 
-	// function CallQuestFunction(formID:String, functionName:String, ...arguments);
-	// e.g. CallQuestFunction("MyMod.esp|F99", "MyFunction", 0.1, 0.2, true);
+	// function GetPropertyValueEx(formIdentifier:String, scriptName:String, propertyName:String):*
+	// Returns null if the property doesn't exist.
+	class GetPropertyValueEx : public GFxFunctionHandler {
+	public:
+		virtual void Invoke(Args* args) {
+			args->result->SetNull();
+
+			if (args->numArgs < 3) return;
+			if (args->args[0].GetType() != GFxValue::kType_String) return;
+			if (args->args[1].GetType() != GFxValue::kType_String) return;
+			if (args->args[2].GetType() != GFxValue::kType_String) return;
+			
+			const char* formIdentifier	= args->args[0].GetString();
+			const char*	scriptName		= args->args[1].GetString();
+			const char*	propertyName	= args->args[2].GetString();
+
+			VMValue valueOut;
+			bool getOK = MCMUtils::GetPropertyValue(formIdentifier, scriptName, propertyName, &valueOut);
+			if (getOK)
+				PlatformAdapter::ConvertPapyrusValue(args->result, &valueOut, args->movie->movieRoot);
+		}
+	};
+
+	// function SetPropertyValueEx(formIdentifier:String, scriptName:String, propertyName:String, newValue:*):Boolean
+	class SetPropertyValueEx : public GFxFunctionHandler {
+	public:
+		virtual void Invoke(Args* args) {
+			args->result->SetBool(false);
+
+			if (args->numArgs < 4) return;
+			if (args->args[0].GetType() != GFxValue::kType_String) return;
+			if (args->args[1].GetType() != GFxValue::kType_String) return;
+			if (args->args[2].GetType() != GFxValue::kType_String) return;
+			if (args->args[3].GetType() != GFxValue::kType_String) return;
+
+			const char* formIdentifier	= args->args[0].GetString();
+			const char*	scriptName		= args->args[1].GetString();
+			const char*	propertyName	= args->args[2].GetString();
+			GFxValue*	newValue		= &args->args[3];
+
+			VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
+
+			VMValue newVMValue;
+			PlatformAdapter::ConvertScaleformValue(&newVMValue, newValue, vm);
+			bool setOK = MCMUtils::SetPropertyValue(formIdentifier, scriptName, propertyName, &newVMValue);
+
+			args->result->SetBool(setOK);
+		}
+	};
+
+	// function CallQuestFunction(formID:String, scriptName:String, functionName:String, ...arguments);
+	// e.g. CallQuestFunction("MyMod.esp|F99", "MyScript", "MyFunction", 0.1, 0.2, true);
 	// Note: this function has been updated to accept any Form type.
 	class CallQuestFunction : public GFxFunctionHandler {
 	public:
 		virtual void Invoke(Args* args) {
 			args->result->SetBool(false);
 
-			if (args->numArgs < 2) return;
-			if (args->args[0].GetType() != GFxValue::kType_String) return;
-			if (args->args[1].GetType() != GFxValue::kType_String) return;
+			if (args->numArgs < 3) return;
+			if (args->args[0].GetType() != GFxValue::kType_String) return; // formIdentifier
+			if (args->args[1].GetType() != GFxValue::kType_String) return; // scriptName
+			if (args->args[2].GetType() != GFxValue::kType_String) return; // functionName
 
 			TESForm* targetForm = MCMUtils::GetFormFromIdentifier(args->args[0].GetString());
 
 			if (!targetForm) {
 				_MESSAGE("WARNING: %s is not a valid form.", args->args[0].GetString());
 			} else {
+				const char* scriptName = args->args[1].GetString();
 
 				VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
+				MCMUtils::VMScript script(targetForm, scriptName);
 
-				VMValue senderValue;
-				PackValue(&senderValue, &targetForm, vm);
-
-				if (!senderValue.IsIdentifier()) {
+				if (!script.m_identifier) {
 					_MESSAGE("WARNING: %s cannot be resolved to a Papyrus script object.", args->args[0].GetString());
 				} else {
-
-					VMIdentifier* identifier = senderValue.data.id;
-					BSFixedString funcName(args->args[1].GetString());
+					BSFixedString funcName(args->args[2].GetString());
 
 					VMValue packedArgs;
-					UInt32 length = args->numArgs - 2;
+					UInt32 length = args->numArgs - 3;
 					VMValue::ArrayData* arrayData = nullptr;
 					vm->CreateArray(&packedArgs, length, &arrayData);
 
@@ -228,11 +276,11 @@ namespace ScaleformMCM {
 					for (UInt32 i = 0; i < length; i++)
 					{
 						VMValue* var = new VMValue;
-						PlatformAdapter::ConvertScaleformValue(var, &args->args[i + 2], vm);
+						PlatformAdapter::ConvertScaleformValue(var, &args->args[i + 3], vm);
 						arrayData->arr.entries[i].SetVariable(var);
 					}
 
-					CallFunctionNoWait_Internal(vm, 0, identifier, &funcName, &packedArgs);
+					CallFunctionNoWait_Internal(vm, 0, script.m_identifier, &funcName, &packedArgs);
 
 					args->result->SetBool(true);
 				}
@@ -695,6 +743,8 @@ void ScaleformMCM::RegisterFuncs(GFxValue* codeObj, GFxMovieRoot* movieRoot) {
 	RegisterFunction<SetGlobalValue>(codeObj, movieRoot, "SetGlobalValue");
 	RegisterFunction<GetPropertyValue>(codeObj, movieRoot, "GetPropertyValue");
 	RegisterFunction<SetPropertyValue>(codeObj, movieRoot, "SetPropertyValue");
+	RegisterFunction<GetPropertyValueEx>(codeObj, movieRoot, "GetPropertyValueEx");
+	RegisterFunction<SetPropertyValueEx>(codeObj, movieRoot, "SetPropertyValueEx");
 	RegisterFunction<CallQuestFunction>(codeObj, movieRoot, "CallQuestFunction");
 	RegisterFunction<CallGlobalFunction>(codeObj, movieRoot, "CallGlobalFunction");
 

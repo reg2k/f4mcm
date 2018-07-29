@@ -123,7 +123,7 @@ void MCMUtils::GetPropertyInfo(VMObjectTypeInfo * objectTypeInfo, PropertyInfo *
 	GetPropertyInfo_Internal(objectTypeInfo, outInfo, propertyName, 1);
 }
 
-bool MCMUtils::GetPropertyValue(const char * formIdentifier, const char * propertyName, VMValue * valueOut)
+bool MCMUtils::GetPropertyValue(const char * formIdentifier, const char * scriptName, const char * propertyName, VMValue * valueOut)
 {
 	TESForm* targetForm = MCMUtils::GetFormFromIdentifier(formIdentifier);
 	if (!targetForm) {
@@ -132,9 +132,9 @@ bool MCMUtils::GetPropertyValue(const char * formIdentifier, const char * proper
 	}
 
 	VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
-	VMValue targetScript;
-	PackValue(&targetScript, &targetForm, vm);
-	if (!targetScript.IsIdentifier()) {
+	VMScript script(targetForm, scriptName);
+
+	if (!script.m_identifier) {
 		_WARNING("Warning: Cannot retrieve a property value %s from a form with no scripts attached. (%s)", propertyName, formIdentifier);
 		return false;
 	}
@@ -142,19 +142,18 @@ bool MCMUtils::GetPropertyValue(const char * formIdentifier, const char * proper
 	// Find the property
 	PropertyInfo pInfo = {};
 	pInfo.index = -1;
-	GetPropertyInfo(targetScript.data.id->m_typeInfo, &pInfo, &BSFixedString(propertyName));
+	GetPropertyInfo(script.m_identifier->m_typeInfo, &pInfo, &BSFixedString(propertyName));
 
 	if (pInfo.index != -1) {
-		//vm->Unk_25(&targetScript.data.id, pInfo.index, valueOut);
-		GetVirtualFunction<_GetPropertyValueByIndex>(vm, Idx_GetPropertyValueByIndex)(vm, &targetScript.data.id, pInfo.index, valueOut);
+		vm->GetPropertyValueByIndex(&script.m_identifier, pInfo.index, valueOut);
 		return true;
 	} else {
-		_WARNING("Warning: Property %s does not exist on script %s", propertyName, targetScript.data.id->m_typeInfo->m_typeName.c_str());
+		_WARNING("Warning: Property %s does not exist on script %s", propertyName, script.m_identifier->m_typeInfo->m_typeName.c_str());
 		return false;
 	}
 }
 
-bool MCMUtils::SetPropertyValue(const char * formIdentifier, const char * propertyName, VMValue * valueIn)
+bool MCMUtils::SetPropertyValue(const char * formIdentifier, const char * scriptName, const char * propertyName, VMValue * valueIn)
 {
 	TESForm* targetForm = GetFormFromIdentifier(formIdentifier);
 	if (!targetForm) {
@@ -163,16 +162,15 @@ bool MCMUtils::SetPropertyValue(const char * formIdentifier, const char * proper
 	}
 
 	VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
-	VMValue targetScript;
-	PackValue(&targetScript, &targetForm, vm);
-	if (!targetScript.IsIdentifier()) {
+	VMScript script(targetForm, scriptName);
+
+	if (!script.m_identifier) {
 		_WARNING("Warning: Cannot set a property value %s on a form with no scripts attached. (%s)", propertyName, formIdentifier);
 		return false;
 	}
 
 	UInt64 unk4 = 0;
-	//vm->Unk_23(&targetScript.data.id, propertyName, valueIn, &unk4);
-	GetVirtualFunction<_SetPropertyValue>(vm, Idx_SetPropertyValue)(vm, &targetScript.data.id, propertyName, valueIn, &unk4);
+	vm->SetPropertyValue(&script.m_identifier, propertyName, valueIn, &unk4);
 
 	return true;
 }

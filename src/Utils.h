@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Globals.h"
 #include "f4se/GameForms.h"
-
-class VMObjectTypeInfo;
-class VMValue;
+#include "f4se/PapyrusValue.h"
+#include "f4se/PapyrusVM.h"
 
 namespace MCMUtils {
 	// 40
@@ -34,8 +34,8 @@ namespace MCMUtils {
 
 	// Papyrus Properties
 	void GetPropertyInfo(VMObjectTypeInfo* objectTypeInfo, PropertyInfo* outInfo, BSFixedString* propertyName);
-	bool GetPropertyValue(const char* formIdentifier, const char* propertyName, VMValue* valueOut);
-	bool SetPropertyValue(const char* formIdentifier, const char* propertyName, VMValue* valueIn);
+	bool GetPropertyValue(const char* formIdentifier, const char* scriptName, const char* propertyName, VMValue* valueOut);
+	bool SetPropertyValue(const char* formIdentifier, const char* scriptName, const char* propertyName, VMValue* valueIn);
 
     // Utilities
     template<typename T>
@@ -45,4 +45,22 @@ namespace MCMUtils {
     }
 
 	BSFixedString GetDescription(TESForm * thisForm);
+
+	class VMScript
+	{
+	public:
+		VMScript(TESForm* form, const char* scriptName = "ScriptObject") {
+			if (!scriptName || scriptName[0] == '\0') scriptName = "ScriptObject";
+			VirtualMachine* vm = (*G::gameVM)->m_virtualMachine;
+			UInt64 handle = vm->GetHandlePolicy()->Create(form->formType, form);
+			vm->GetObjectIdentifier(handle, scriptName, 1, &m_identifier, 0);
+		}
+
+		~VMScript() {
+			if (m_identifier && !m_identifier->DecrementLock())
+				m_identifier->Destroy();
+		}
+
+		VMIdentifier* m_identifier = nullptr;
+	};
 }
