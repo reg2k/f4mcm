@@ -5,7 +5,7 @@
 // Plugin Information
 //-----------------------
 #define PLUGIN_VERSION              5
-#define PLUGIN_VERSION_STRING       "1.28"
+#define PLUGIN_VERSION_STRING       "1.31"
 #define PLUGIN_NAME_SHORT           "F4MCM"
 #define PLUGIN_NAME_LONG            "Mod Configuration Menu"
 #define SUPPORTED_RUNTIME_VERSION   CURRENT_RELEASE_RUNTIME
@@ -61,8 +61,5 @@
     #define Addr_ExecuteCommand         0x012416F0
     #define Addr_ProcessUserEvent_Check 0x020E745C
     #define Addr_GetPropertyInfo        0x026A52E0
-
-#else
-    #error "Addresses for runtime version missing."
 
 #endif
