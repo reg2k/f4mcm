@@ -58,7 +58,7 @@ TESForm * MCMUtils::GetFormFromIdentifier(const std::string & identifier)
 		std::string modForm = identifier.substr(delimiter + 1);
 
 		const ModInfo* mod = (*G::dataHandler)->LookupModByName(modName.c_str());
-		if (mod && mod->modIndex != -1) {
+		if (mod && mod->modIndex != 0xFF) {
 			UInt32 formID = std::stoul(modForm, nullptr, 16) & 0xFFFFFF;
 			UInt32 flags = GetOffset<UInt32>(mod, 0x334);
 			if (flags & (1 << 9)) {
