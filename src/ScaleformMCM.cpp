@@ -723,6 +723,30 @@ namespace ScaleformMCM {
 			args->result->SetString(MCMUtils::GetDescription(form).c_str());
 		}
 	};
+
+	class GetListFromForm : public GFxFunctionHandler {
+	public:
+		virtual void Invoke(Args* args) {
+			if (args->args[0].GetType() != GFxValue::kType_String) return;
+			TESForm* form = MCMUtils::GetFormFromIdentifier(args->args[0].GetString());
+			if (!form) return;
+			BGSListForm* formlist = DYNAMIC_CAST(form, TESForm, BGSListForm);
+			if (!formlist) return;
+			args->movie->movieRoot->CreateArray(args->result);
+			for (size_t i = 0; i < formlist->forms.count; i++)
+			{
+				form = formlist->forms.entries[i];
+				GFxValue value;
+				args->movie->movieRoot->CreateString(&value, "");
+				TESFullName* fullname = DYNAMIC_CAST(form, TESForm, TESFullName);
+				if (fullname)
+					value.SetString(fullname->name.c_str());
+				else
+					value.SetString(form->GetEditorID());
+				args->result->PushBack(&value);
+			}
+		}
+	};
 }
 
 void ScaleformMCM::RegisterFuncs(GFxValue* codeObj, GFxMovieRoot* movieRoot) {
@@ -772,6 +796,7 @@ void ScaleformMCM::RegisterFuncs(GFxValue* codeObj, GFxMovieRoot* movieRoot) {
 	// 
 	RegisterFunction<GetFullName>(codeObj, movieRoot, "GetFullName");
 	RegisterFunction<GetDescription>(codeObj, movieRoot, "GetDescription");
+	RegisterFunction<GetListFromForm>(codeObj, movieRoot, "GetListFromForm");
 }
 
 //-------------------------
