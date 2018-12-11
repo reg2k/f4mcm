@@ -724,25 +724,27 @@ namespace ScaleformMCM {
 		}
 	};
 
+	// function GetListFromForm(formIdentifier:String):Array<String>
 	class GetListFromForm : public GFxFunctionHandler {
 	public:
 		virtual void Invoke(Args* args) {
-			if (args->args[0].GetType() != GFxValue::kType_String) return;
+			args->movie->movieRoot->CreateArray(args->result);
+
+			if (args->numArgs < 1) return;
+			if (args->args[0].GetType() != GFxValue::kType_String) return; // formIdentifier
+
 			TESForm* form = MCMUtils::GetFormFromIdentifier(args->args[0].GetString());
 			if (!form) return;
 			BGSListForm* formlist = DYNAMIC_CAST(form, TESForm, BGSListForm);
 			if (!formlist) return;
-			args->movie->movieRoot->CreateArray(args->result);
+			
 			for (size_t i = 0; i < formlist->forms.count; i++)
 			{
 				form = formlist->forms.entries[i];
 				GFxValue value;
 				args->movie->movieRoot->CreateString(&value, "");
 				TESFullName* fullname = DYNAMIC_CAST(form, TESForm, TESFullName);
-				if (fullname)
-					value.SetString(fullname->name.c_str());
-				else
-					value.SetString(form->GetEditorID());
+				value.SetString(fullname ? fullname->name.c_str() : form->GetEditorID());
 				args->result->PushBack(&value);
 			}
 		}
