@@ -1,5 +1,5 @@
 #include "SettingStore.h"
-
+#include <algorithm>
 #include <string>
 
 // reg2k
@@ -141,31 +141,53 @@ void SettingStore::LoadDefaults() {
 }
 
 void SettingStore::LoadUserSettings() {
-	char* modSettingsDirectory = "Data\\MCM\\Settings\\*.ini";
+	std::vector<std::pair<std::string, std::string>> modSettingFiles;
 
-	HANDLE hFind;
-	WIN32_FIND_DATA data;
-	std::vector<WIN32_FIND_DATA> modSettingFiles;
+	// Find all plugin files
+	WIN32_FIND_DATAA findData = {0};
+	if (HANDLE handle = ::FindFirstFileA("Data\\*", &findData); handle != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				std::string_view fineName = findData.cFileName;
+				if (fineName != "." && fineName != "..")
+				{
+					size_t dotPos = fineName.rfind('.');
+					if (dotPos != std::string_view::npos)
+					{
+						std::string fileExtension(fineName.substr(dotPos + 1));
 
-	hFind = FindFirstFile(modSettingsDirectory, &data);
-	if (hFind != INVALID_HANDLE_VALUE) {
-		do {
-			modSettingFiles.push_back(data);
-		} while (FindNextFile(hFind, &data));
-		FindClose(hFind);
-	}
+						// Extensions are assumed to contain only Latin characters, so use of 'tolower' is fine.
+						std::transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), ::tolower);
+						if (fileExtension == "esp" || fileExtension == "esm" || fileExtension == "esl")
+						{
+							std::string_view modName(fineName.substr(0, fineName.length() - fileExtension.length() - 1));
 
-	_MESSAGE("Number of mod setting files: %d", modSettingFiles.size());
+							// Construct user settings path
+							std::string settingsPath = "Data\\MCM\\Settings\\";
+							settingsPath += modName;
+							settingsPath += ".ini";
 
-	for (int i = 0; i < modSettingFiles.size(); i++) {
-		std::string iniLocation = "./Data/MCM/Settings/";
-		iniLocation += modSettingFiles[i].cFileName;
+							if (::GetFileAttributesA(settingsPath.c_str()) != INVALID_FILE_ATTRIBUTES)
+							{
+								modSettingFiles.emplace_back(modName, settingsPath);
+							}
+						}
+					}
+				}
+			}
+		}
+		while (::FindNextFileA(handle, &findData));
+		::FindClose(handle);
 
-		// Extract mod name
-		std::string modName(modSettingFiles[i].cFileName);
-		modName = modName.substr(0, modName.find_last_of('.'));
+		_MESSAGE("Number of mod setting files: %d", (int)modSettingFiles.size());
 
-		ReadINI(modName, iniLocation);
+		for (const auto&[modName, iniLocation]: modSettingFiles)
+		{
+			ReadINI(modName, iniLocation);
+		}
 	}
 }
 
