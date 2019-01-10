@@ -145,25 +145,26 @@ void SettingStore::LoadUserSettings() {
 
 	// Find all plugin files
 	WIN32_FIND_DATAA findData = {0};
-	if (HANDLE handle = ::FindFirstFileA("Data\\*", &findData); handle != INVALID_HANDLE_VALUE)
+	HANDLE handle = ::FindFirstFileA("Data\\*", &findData);
+	if (handle != INVALID_HANDLE_VALUE)
 	{
 		do
 		{
 			if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				std::string_view fineName = findData.cFileName;
-				if (fineName != "." && fineName != "..")
+				std::string fileName = findData.cFileName;
+				if (fileName != "." && fileName != "..")
 				{
-					size_t dotPos = fineName.rfind('.');
-					if (dotPos != std::string_view::npos)
+					size_t dotPos = fileName.rfind('.');
+					if (dotPos != std::string::npos)
 					{
-						std::string fileExtension(fineName.substr(dotPos + 1));
+						std::string fileExtension(fileName.substr(dotPos + 1));
 
 						// Extensions are assumed to contain only Latin characters, so use of 'tolower' is fine.
 						std::transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), ::tolower);
 						if (fileExtension == "esp" || fileExtension == "esm" || fileExtension == "esl")
 						{
-							std::string_view modName(fineName.substr(0, fineName.length() - fileExtension.length() - 1));
+							std::string modName(fileName.substr(0, fileName.length() - fileExtension.length() - 1));
 
 							// Construct user settings path
 							std::string settingsPath = "Data\\MCM\\Settings\\";
@@ -184,9 +185,9 @@ void SettingStore::LoadUserSettings() {
 
 		_MESSAGE("Number of mod setting files: %d", (int)modSettingFiles.size());
 
-		for (const auto&[modName, iniLocation]: modSettingFiles)
+		for (const std::pair<std::string, std::string>& value: modSettingFiles)
 		{
-			ReadINI(modName, iniLocation);
+			ReadINI(value.first, value.second);
 		}
 	}
 }
