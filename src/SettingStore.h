@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "f4se/GameSettings.h"
+#include "StringUtil.h"
 
 //struct ModSetting {
 //	char* settingName;
@@ -38,7 +39,7 @@ public:
 
 private:
 	SettingStore();
-	std::unordered_map<std::string, Setting*> m_settingStore;
+	StringUtil::UnorderedMapANoCase<std::unique_ptr<Setting>> m_settingStore;
 
 	bool ReadINI(std::string modName, std::string iniLocation);
 	void LoadDefaults();
