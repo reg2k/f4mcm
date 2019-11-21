@@ -5,7 +5,7 @@
 // Plugin Information
 //-----------------------
 #define PLUGIN_VERSION              8
-#define PLUGIN_VERSION_STRING       "1.37"
+#define PLUGIN_VERSION_STRING       "1.38"
 #define PLUGIN_NAME_SHORT           "F4MCM"
 #define PLUGIN_NAME_LONG            "Mod Configuration Menu"
 #define SUPPORTED_RUNTIME_VERSION   CURRENT_RELEASE_RUNTIME
