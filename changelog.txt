@@ -1,3 +1,7 @@
+1.40:
+- Public release v1.40 (version code 9)
+- Support for game version v1.10.984
+
 1.34:
 - Public release v1.34 (version code 6)
 - Added GetListFromForm Scaleform function

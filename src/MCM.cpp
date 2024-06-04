@@ -64,6 +64,21 @@ void OnF4SEMessage(F4SEMessagingInterface::Message* msg) {
 extern "C"
 {
 
+__declspec(dllexport) F4SEPluginVersionData F4SEPlugin_Version =
+{
+	F4SEPluginVersionData::kVersion,
+
+	PLUGIN_VERSION,
+	PLUGIN_NAME_SHORT,
+	"The F4MCM Authors",
+
+	0,
+	F4SEPluginVersionData::kStructureIndependence_1_10_980Layout,
+	{ SUPPORTED_RUNTIME_VERSION, 0 },
+
+	0,
+};
+
 bool F4SEPlugin_Query(const F4SEInterface * f4se, PluginInfo * info)
 {
 	gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Fallout4\\F4SE\\MCM.log");
@@ -131,7 +146,42 @@ bool F4SEPlugin_Query(const F4SEInterface * f4se, PluginInfo * info)
 
 bool F4SEPlugin_Load(const F4SEInterface *f4se)
 {
+    gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Fallout4\\F4SE\\MCM.log");
+
+    _MESSAGE("MCM v%s", PLUGIN_VERSION_STRING);
     _MESSAGE("MCM load");
+
+    // Store plugin handle
+    g_pluginHandle = f4se->GetPluginHandle();
+
+    // Get interfaces
+    // Get the scaleform interface
+    g_scaleform = (F4SEScaleformInterface*)f4se->QueryInterface(kInterface_Scaleform);
+    if (!g_scaleform) {
+        _MESSAGE("couldn't get scaleform interface");
+        return false;
+    }
+
+    // Get the papyrus interface
+    g_papyrus = (F4SEPapyrusInterface*)f4se->QueryInterface(kInterface_Papyrus);
+    if (!g_papyrus) {
+        _MESSAGE("couldn't get papyrus interface");
+        return false;
+    }
+
+    // Get the messaging interface
+    g_messaging = (F4SEMessagingInterface*)f4se->QueryInterface(kInterface_Messaging);
+    if (!g_messaging) {
+        _MESSAGE("couldn't get messaging interface");
+        return false;
+    }
+
+    // Get the serialization interface
+    g_serialization = (F4SESerializationInterface*)f4se->QueryInterface(kInterface_Serialization);
+    if (!g_serialization) {
+        _MESSAGE("couldn't get serialization interface");
+        return false;
+    }
 
     // Initialize globals and addresses
     G::Init();
