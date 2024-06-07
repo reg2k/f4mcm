@@ -1,5 +1,5 @@
 #include "SettingStore.h"
-
+#include <algorithm>
 #include <string>
 
 // reg2k
@@ -140,7 +140,8 @@ void SettingStore::LoadDefaults() {
 	}
 }
 
-void SettingStore::LoadUserSettings() {
+void SettingStore::LoadUserSettings()
+{
 	char* modSettingsDirectory = "Data\\MCM\\Settings\\*.ini";
 
 	HANDLE hFind;
@@ -148,16 +149,20 @@ void SettingStore::LoadUserSettings() {
 	std::vector<WIN32_FIND_DATA> modSettingFiles;
 
 	hFind = FindFirstFile(modSettingsDirectory, &data);
-	if (hFind != INVALID_HANDLE_VALUE) {
-		do {
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
 			modSettingFiles.push_back(data);
-		} while (FindNextFile(hFind, &data));
+		}
+		while (FindNextFile(hFind, &data));
 		FindClose(hFind);
 	}
 
 	_MESSAGE("Number of mod setting files: %d", modSettingFiles.size());
 
-	for (int i = 0; i < modSettingFiles.size(); i++) {
+	for (int i = 0; i < modSettingFiles.size(); i++)
+	{
 		std::string iniLocation = "./Data/MCM/Settings/";
 		iniLocation += modSettingFiles[i].cFileName;
 
@@ -234,14 +239,14 @@ Setting * SettingStore::GetModSetting(std::string modName, std::string settingNa
 {
 	auto itr = m_settingStore.find(modName + ":" + settingName);
 	if (itr != m_settingStore.end()) {
-		return itr->second;
+		return itr->second.get();
 	}
 	return nullptr;
 }
 
 void SettingStore::RegisterModSetting(std::string modName, std::string settingName, std::string settingValue)
 {
-	Setting* ms = new Setting;
+	auto ms = std::make_unique<Setting>();
 
 	char* nameCopy = new char[settingName.size()+1];
 	std::copy(settingName.begin(), settingName.end(), nameCopy);
@@ -270,11 +275,10 @@ void SettingStore::RegisterModSetting(std::string modName, std::string settingNa
 
 		default:
 			_WARNING("WARNING: ModSetting %s from mod %s has an unknown type and cannot be registered.", settingName.c_str(), modName.c_str());
-			delete ms;
 			return;
 	}
 
-	m_settingStore[modName + ":" + settingName] = ms;
+	m_settingStore[modName + ":" + settingName] = std::move(ms);
 }
 
 void SettingStore::CommitModSetting(std::string modName, Setting* modSetting)
